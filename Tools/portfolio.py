@@ -86,6 +86,9 @@ r.VolumetricFog=0
 r.ScreenPercentage=75
 '''
     if "; ArenaMovement demo integration" not in previous: engine_config.write_text(previous+section)
+    if "; ArenaMovement native cursor" not in engine_config.read_text():
+        with engine_config.open("a") as file:
+            file.write("\n; ArenaMovement native cursor\n[/Script/Engine.UserInterfaceSettings]\nSoftwareCursors=()\n")
     package_config=project_root/"Config"/"DefaultGame.ini"
     package_text=package_config.read_text() if package_config.exists() else ""
     if '+DirectoriesToAlwaysCook=(Path="/Game/ArenaDemo")' not in package_text:
@@ -93,6 +96,60 @@ r.ScreenPercentage=75
     if "; ArenaMovement demo UI" not in package_config.read_text():
         with package_config.open("a") as file:
             file.write('\n; ArenaMovement demo UI\n[/Script/LyraGame.LyraUIManagerSubsystem]\nDefaultUIPolicyClass=None\n\n[/Script/Engine.AssetManagerSettings]\n!PrimaryAssetTypesToScan=ClearArray\n+PrimaryAssetTypesToScan=(PrimaryAssetType="GameFeatureData",AssetBaseClass="/Script/GameFeatures.GameFeatureData",bHasBlueprintClasses=False,bIsEditorOnly=False,Directories=((Path="/Game/Unused")),Rules=(CookRule=AlwaysCook))\n+PrimaryAssetTypesToScan=(PrimaryAssetType="LyraPawnData",AssetBaseClass="/Script/LyraGame.LyraPawnData",bHasBlueprintClasses=False,bIsEditorOnly=False,Directories=((Path="/Game/ArenaDemo")),Rules=(CookRule=AlwaysCook))\n')
+    # The native course uses its own HUD and original assets, so the sample's
+    # optional front-end, audio mixes and content tag tables are not required.
+    overrides={
+        "DefaultGame.ini": """
+; ArenaMovement native presentation
+[/Script/LyraGame.LyraUIMessaging]
+ConfirmationDialogClass=None
+ErrorDialogClass=None
+[/Script/CommonLoadingScreen.CommonLoadingScreenSettings]
+LoadingScreenWidget=/Script/CommonUI.CommonUserWidget
+[/Script/CommonInput.CommonInputSettings]
+InputData=None
+[/Script/CommonUI.CommonUISettings]
+DefaultThrobberMaterial=None
+DefaultRichTextDataClass=None
+[/Script/LyraGame.LyraAudioSettings]
+DefaultControlBusMix=None
+UserSettingsControlBusMix=None
+OverallVolumeControlBus=None
+MusicVolumeControlBus=None
+SoundFXVolumeControlBus=None
+DialogueVolumeControlBus=None
+VoiceChatVolumeControlBus=None
+LoadingScreenControlBusMix=None
+!HDRAudioSubmixEffectChain=ClearArray
+!LDRAudioSubmixEffectChain=ClearArray
+""",
+        "DefaultEngine.ini": """
+; ArenaMovement native presentation
+[/Script/Engine.AudioSettings]
+DefaultSoundClassName=/Engine/EngineSounds/Master.Master
+DefaultMediaSoundClassName=/Engine/EngineSounds/Master.Master
+DefaultSoundConcurrencyName=None
+VoiPSoundClass=/Engine/EngineSounds/Master.Master
+MasterSubmix=/Engine/EngineSounds/Submixes/MasterSubmixDefault.MasterSubmixDefault
+""",
+        "DefaultEditor.ini": """
+; ArenaMovement native presentation
+[/Script/CommonUI.CommonUIEditorSettings]
+TemplateTextStyle=None
+TemplateButtonStyle=None
+""",
+        "DefaultGameplayTags.ini": """
+; ArenaMovement native presentation
+[/Script/GameplayTags.GameplayTagsSettings]
+-GameplayTagTableList=/Game/ContextEffects/DT_AnimEffectTags.DT_AnimEffectTags
+-GameplayTagTableList=/Game/ContextEffects/DT_SurfaceTypes.DT_SurfaceTypes
+"""
+    }
+    for filename,extra in overrides.items():
+        path=project_root/"Config"/filename
+        existing=path.read_text() if path.exists() else ""
+        if "; ArenaMovement native presentation" not in existing:
+            path.write_text(existing+extra)
     input_config=project_root/"Config"/"DefaultInput.ini"
     old=input_config.read_text() if input_config.exists() else ""
     new=(root/"Tools"/"arena-input.ini").read_text()

@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "frames": 480,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "renderer": "Unreal Engine 5.4",
+  "gameplay": {
+    "success": true,
+    "blueprintClass": "BP_ArenaRunner_C",
+    "checkpoints": 4,
+    "groundDodges": 1,
+    "wallDodges": 1,
+    "airJumps": 1,
+    "courseSeconds": 9.93
+  },
+  "engineVersion": {
+    "MajorVersion": 5,
+    "MinorVersion": 4,
+    "PatchVersion": 4,
+    "Changelist": 0,
+    "CompatibleChangelist": 33043543,
+    "IsLicenseeVersion": 0,
+    "IsPromotedBuild": 0,
+    "BranchName": "UE5",
+    "BuildId": "ba85bce9-4592-4351-a6ff-c8bd5c339bdb"
+  },
+  "graphicsDevice": "Mesa llvmpipe Vulkan CPU renderer"
+}

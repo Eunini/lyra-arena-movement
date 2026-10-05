@@ -2,7 +2,7 @@
 
 An Unreal Engine 5.4 C++ movement extension built on Lyra's character, character movement component and Gameplay Ability System.
 
-The native Lyra editor and ArenaMovement modules compile in Unreal Engine 5.4.4. The repository includes the engine-generated Blueprint runner, pawn-data asset, material and course map. A native UE5 run completed all four checkpoints with ground dodge, wall dodge and an air jump in 9.93 seconds. The objective receipt is in `Evidence/NativeObjectives.json`. Native gameplay recording is underway.
+The native Lyra editor and ArenaMovement modules compile in Unreal Engine 5.4.4. The repository includes the engine-generated Blueprint runner, pawn-data asset, material and course map. A native UE5 run completed all four checkpoints with ground dodge, wall dodge and an air jump in 9.93 seconds. The objective receipt is in `Evidence/NativeObjectives.json`. [Download the 16-second UE5 gameplay recording](https://github.com/Eunini/lyra-arena-movement/releases/download/native-gameplay-v1/lyra-arena-movement-Gameplay.mp4). The viewport clip records each movement action and the completed course; its objective and frame receipt is in `Evidence/ViewportCapture.json`.
 
 ## Movement and playable course
 
@@ -23,7 +23,7 @@ Use a fresh Lyra 5.4 sample copy and an Unreal Engine 5.4 installation:
 python3 Tools/portfolio.py --engine /path/to/UE5.4 --lyra /path/to/Lyra --run
 ```
 
-The helper installs the two project plugins into that copy, adds input mappings and an arena-specific startup configuration, then compiles LyraEditor and generates native assets. It disables the shooter game-feature plugins and their UI policy in that separate copy so the course can run without the shooter artwork. It adds `LYRAGAME_API` to LyraAssetManager and LyraGameData in the sample headers so the demo module can extend them. Use a separate sample copy to keep this integration isolated.
+The helper installs the two project plugins into that copy, adds input mappings and an arena-specific startup configuration, then compiles LyraEditor and generates native assets. It disables the shooter game-feature plugins and their UI policy in that separate copy so the course can run without the shooter artwork. It exports LyraAssetManager, LyraGameData, LyraHealthSet and LyraCombatSet from the sample module so the demo can extend and instantiate those native types. The original Canvas HUD, native cursor and a native loading widget replace unused sample UI references. Use a separate sample copy to keep this integration isolated.
 
 Add `--package` for a Development build or `--capture` for native viewport footage. Capture requires FFmpeg and a working graphics renderer. On Linux, `--software-renderer` allows a configured Vulkan CPU device for recording.
 
@@ -45,6 +45,17 @@ cmake --build build
 ./build/arena_checks
 ```
 
-Eight scenarios cover ground and wall-dodge rules, momentum, recovery, air-speed capping, deterministic results and strafe acceleration. They verify the engine-independent movement rules. Native gameplay footage will be linked after the new scene has run in UE5.
+Eight scenarios cover ground and wall-dodge rules, momentum, recovery, air-speed capping, deterministic results and strafe acceleration. They verify the engine-independent movement rules. The native viewport recording demonstrates the course inside UE5; its receipt verifies the Blueprint runner and all required movement actions.
 
 Epic's Lyra source and sample content remain subject to Epic's license and are not redistributed in this repository.
+
+## Native objective run
+
+After building the project, launch the same demonstration without graphics to repeat its gameplay objectives:
+
+```bash
+/path/to/UE5.4/Engine/Binaries/Linux/UnrealEditor /path/to/Lyra/Lyra.uproject /Game/ArenaDemo/Maps/VectorCourse \
+  -game -NullRHI -NoSound -PortfolioDemo -PortfolioVerify -PortfolioFrames=480 -unattended
+```
+
+The engine exits successfully only when the expected Blueprint pawn and gameplay objectives are complete. The receipt is written to `Saved/GameplayEvidence.json`. This mode produces no video frames.

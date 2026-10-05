@@ -55,7 +55,7 @@ if config.get("lyra"):
 AssetManagerClassName=/Script/ArenaMovementRuntime.ArenaDemoAssetManager
 
 [/Script/EngineSettings.GameMapsSettings]
-GameInstanceClass=/Script/Engine.GameInstance
+GameInstanceClass=/Script/LyraGame.LyraGameInstance
 GlobalDefaultGameMode=/Script/ArenaMovementRuntime.ArenaDemoGameMode
 GameDefaultMap=/Game/ArenaDemo/Maps/VectorCourse
 EditorStartupMap=/Game/ArenaDemo/Maps/VectorCourse

@@ -210,6 +210,7 @@ void AArenaDemoHUD::DrawHUD()
  const FLinearColor Text(.88f,.94f,.95f),Orange(.98f,.46f,.18f),Dark(.02f,.035f,.05f,.85f);
  DrawRect(Dark,0,0,W,112);DrawText(TEXT("VECTOR / LYRA ARENA MOVEMENT"),Text,30,24,GEngine->GetLargeFont());
  DrawText(FString::Printf(TEXT("SPEED  %.0f cm/s    CHECKPOINT  %d / 4    TIME  %.2f s"),Player->GetVelocity().Size2D(),Player->GetCheckpoint(),Player->GetRunTime()),Orange,30,70,GEngine->GetSmallFont());
+ DrawText(FString::Printf(TEXT("GROUND DODGES  %d    WALL DODGES  %d    AIR JUMPS  %d"),Player->GetGroundDodges(),Player->GetWallDodges(),Player->GetAirJumps()),Text,30,90,GEngine->GetSmallFont());
  DrawRect(Text,W*.5f-2,H*.5f-2,4,4);
  DrawRect(Dark,0,H-60,W,60);
  DrawText(TEXT("WASD move / Mouse look / Space jump twice / Shift dodge / Jump near wall + dodge away / R restart"),Text,30,H-38,GEngine->GetSmallFont());

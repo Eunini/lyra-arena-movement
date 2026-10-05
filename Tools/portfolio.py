@@ -9,6 +9,7 @@ p.add_argument("--lyra", type=Path)
 p.add_argument("--package", action="store_true")
 p.add_argument("--run", action="store_true")
 p.add_argument("--capture", action="store_true")
+p.add_argument("--software-renderer", action="store_true")
 a=p.parse_args()
 root=Path(__file__).resolve().parents[1]
 config=json.loads((root/"Tools"/"forge.json").read_text())
@@ -24,6 +25,10 @@ if config.get("lyra"):
     for plugin in descriptor.get("Plugins",[]):
         if plugin.get("Name") in {"ShooterCore","ShooterMaps","ShooterExplorer","ShooterTests","TopDownArena"}:
             plugin["Enabled"]=False
+    plugins=descriptor.setdefault("Plugins",[])
+    server=next((plugin for plugin in plugins if plugin.get("Name")=="AndroidFileServer"),None)
+    if server is None: plugins.append({"Name":"AndroidFileServer","Enabled":False})
+    else: server["Enabled"]=False
     project.write_text(json.dumps(descriptor,indent=2)+"\n")
     for name in ("ArenaMovement","PortfolioForge"):
         source=root/name if name=="ArenaMovement" else root/"Plugins"/name
@@ -40,8 +45,9 @@ if config.get("lyra"):
             descriptor.write_text(json.dumps(plugin,indent=2)+"\n")
     # Lyra 5.4 keeps these extension types local to LyraGame. Export their
     # declarations to support the arena module's native asset-manager subclass.
-    for name in ("LyraAssetManager","LyraGameData"):
-        header=project_root/"Source"/"LyraGame"/"System"/(name+".h")
+    for name,folder in (("LyraAssetManager","System"),("LyraGameData","System"),
+                        ("LyraHealthSet","AbilitySystem/Attributes"),("LyraCombatSet","AbilitySystem/Attributes")):
+        header=project_root/"Source"/"LyraGame"/folder/(name+".h")
         text=header.read_text()
         plain="class U"+name+" :"
         exported="class LYRAGAME_API U"+name+" :"
@@ -63,6 +69,7 @@ EditorStartupMap=/Game/ArenaDemo/Maps/VectorCourse
 [/Script/Engine.RendererSettings]
 r.DynamicGlobalIlluminationMethod=0
 r.ReflectionMethod=0
+r.AntiAliasingMethod=1
 r.RayTracing=False
 r.DefaultFeature.MotionBlur=False
 r.DefaultFeature.AutoExposure=False
@@ -122,6 +129,8 @@ if a.package:
 if a.run or a.capture:
     exe=engine/"Engine"/"Binaries"/target_platform/("UnrealEditor.exe" if system=="Windows" else "UnrealEditor")
     cmd=[str(exe),str(project),config["map"],"-game","-windowed","-ResX=1280","-ResY=720","-NoSplash"]
+    if a.software_renderer:
+        cmd+=["-AllowCPUDevices","-vulkan","-sm5"]
     if a.capture:
         frames=project_root/"Saved"/"PortfolioFrames"
         if frames.exists(): shutil.rmtree(frames)

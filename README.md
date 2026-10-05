@@ -2,7 +2,7 @@
 
 An Unreal Engine 5.4 C++ movement extension built on Lyra's character, character movement component and Gameplay Ability System.
 
-The current revision adds a timed first-person course, a Blueprint runner, a pawn-data asset generator and a native recording path. This revision's engine build and native gameplay run are in progress. The earlier movement-only revision compiled inside Lyra 5.4.4.
+The native Lyra editor and ArenaMovement modules compile in Unreal Engine 5.4.4. The repository includes the engine-generated Blueprint runner, pawn-data asset, material and course map. Native gameplay recording is underway.
 
 ## Movement and playable course
 
@@ -25,7 +25,7 @@ python3 Tools/portfolio.py --engine /path/to/UE5.4 --lyra /path/to/Lyra --run
 
 The helper installs the two project plugins into that copy, adds input mappings and an arena-specific startup configuration, then compiles LyraEditor and generates native assets. It disables the shooter game-feature plugins and their UI policy in that separate copy so the course can run without the shooter artwork. It adds `LYRAGAME_API` to LyraAssetManager and LyraGameData in the sample headers so the demo module can extend them. Use a separate sample copy to keep this integration isolated.
 
-Add `--package` for a Development build or `--capture` for native viewport footage. Capture requires FFmpeg and a working graphics renderer.
+Add `--package` for a Development build or `--capture` for native viewport footage. Capture requires FFmpeg and a working graphics renderer. On Linux, `--software-renderer` allows a configured Vulkan CPU device for recording.
 
 Controls: WASD move, mouse look, Space jump twice, Shift dodge and R restart. To wall dodge, jump near a wall and dodge away from it.
 

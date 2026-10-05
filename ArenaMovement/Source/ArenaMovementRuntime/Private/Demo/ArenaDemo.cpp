@@ -194,8 +194,11 @@ void AArenaDemoWorld::OnConstruction(const FTransform& Transform)
 AArenaDemoGameMode::AArenaDemoGameMode()
 {
  DefaultPawnClass=AArenaDemoCharacter::StaticClass();HUDClass=AArenaDemoHUD::StaticClass();
- static ConstructorHelpers::FClassFinder<APawn> Blueprint(TEXT("/Game/ArenaDemo/Blueprints/BP_ArenaRunner"));
- if (Blueprint.Succeeded()) DefaultPawnClass=Blueprint.Class;
+ if (!IsRunningCommandlet())
+ {
+  static ConstructorHelpers::FClassFinder<APawn> Blueprint(TEXT("/Game/ArenaDemo/Blueprints/BP_ArenaRunner"));
+   if (Blueprint.Succeeded()) DefaultPawnClass=Blueprint.Class;
+ }
 }
 void AArenaDemoGameMode::InitGame(const FString& MapName,const FString& Options,FString& ErrorMessage)
 {

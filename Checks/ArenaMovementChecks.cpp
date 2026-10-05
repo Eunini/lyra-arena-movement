@@ -1,5 +1,5 @@
-// Standalone tests for the arena movement rules.
-// Build: cmake -S Tests -B build && cmake --build build && ./build/arena_tests
+// Standalone checks for the arena movement rules.
+// Build: cmake -S Checks -B build && cmake --build build && ./build/arena_checks
 #include "../ArenaMovement/Source/ArenaMovementRuntime/Public/Core/ArenaMovementMath.h"
 
 #include <cmath>
@@ -136,7 +136,7 @@ namespace
 
 int main()
 {
-	const std::vector<std::pair<const char*, std::function<void()>>> Tests = {
+	const std::vector<std::pair<const char*, std::function<void()>>> Checks = {
 		{"ground dodge from standstill", GroundDodgeFromStandstill},
 		{"dodge never slows you down", DodgeNeverSlowsYouDown},
 		{"recovery blocks chain dodging", RecoveryBlocksChainDodging},
@@ -146,7 +146,7 @@ int main()
 		{"strafe jumping gains speed", StrafeJumpingGainsSpeed},
 		{"deterministic", Deterministic},
 	};
-	for (const auto& [Name, Fn] : Tests)
+	for (const auto& [Name, Fn] : Checks)
 	{
 		const int Before = Failures;
 		std::printf("%s\n", Name);

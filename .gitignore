@@ -5,3 +5,9 @@ build/
 *.sln
 .vs/
 .idea/
+
+Plugins/**/Binaries/
+Plugins/**/Intermediate/
+Artifacts/
+__pycache__/
+*.mp4

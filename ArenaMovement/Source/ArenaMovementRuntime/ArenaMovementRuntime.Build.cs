@@ -21,6 +21,7 @@ public class ArenaMovementRuntime : ModuleRules
 			"AIModule", // ALyraCharacter implements IGenericTeamAgentInterface
 			"GameplayTasks",
 			"NetCore",
+			"InputCore",
 		});
 	}
 }

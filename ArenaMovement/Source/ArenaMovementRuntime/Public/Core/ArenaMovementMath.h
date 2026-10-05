@@ -1,5 +1,5 @@
 // Engine-agnostic arena movement rules: UT-style dodging and Quake-style air acceleration.
-// Plain C++ so the rules are unit tested outside Unreal and behave identically when the
+// Plain C++ so the rules are verified outside Unreal and behave identically when the
 // character movement component replays saved moves. Units match Unreal (cm, cm/s, s; Z up).
 #pragma once
 

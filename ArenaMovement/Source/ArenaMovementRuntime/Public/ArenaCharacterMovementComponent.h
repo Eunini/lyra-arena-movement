@@ -2,8 +2,8 @@
 //   * dodge / wall dodge  - requested by a GAS ability, carried to the server as a saved-move flag
 //   * double jump         - Lyra's jump ability + JumpMaxCount, with its own air-jump velocity
 //   * air strafing        - Quake-style air acceleration replacing UE's AirControl while falling
-// All state that affects the simulation is saved with each move, so client replays after a
-// server correction reproduce the same dodges.
+// Custom simulation state is saved with each local move and restored during replay.
+// Server corrections omit that custom state; the README describes this limitation.
 #pragma once
 
 #include "CoreMinimal.h"

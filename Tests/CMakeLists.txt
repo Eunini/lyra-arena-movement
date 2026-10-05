@@ -1,7 +1,0 @@
-cmake_minimum_required(VERSION 3.16)
-project(ArenaMovementTests CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_executable(arena_tests ArenaMovementTests.cpp ../ArenaMovement/Source/ArenaMovementRuntime/Private/Core/ArenaMovementMath.cpp)
-target_include_directories(arena_tests PRIVATE ../ArenaMovement/Source/ArenaMovementRuntime/Public)
-target_compile_options(arena_tests PRIVATE -Wall -Wextra -Wshadow -Werror)

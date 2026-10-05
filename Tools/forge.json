@@ -1,0 +1,25 @@
+{
+  "lyra": true,
+  "target": "LyraEditor",
+  "map": "/Game/ArenaDemo/Maps/VectorCourse",
+  "world": "/Script/ArenaMovementRuntime.ArenaDemoWorld",
+  "mode": "/Script/ArenaMovementRuntime.ArenaDemoGameMode",
+  "blueprints": [
+    {
+      "path": "/Game/ArenaDemo/Blueprints/BP_ArenaRunner",
+      "parent": "/Script/ArenaMovementRuntime.ArenaDemoCharacter",
+      "event": "K2_OnDodged",
+      "call": "PulseDodge",
+      "parameter": "Kind"
+    }
+  ],
+  "dataAssets": [
+    {
+      "path": "/Game/ArenaDemo/DA_Runner",
+      "class": "/Script/LyraGame.LyraPawnData",
+      "defaults": {
+        "PawnClass": "/Game/ArenaDemo/Blueprints/BP_ArenaRunner.BP_ArenaRunner_C"
+      }
+    }
+  ]
+}

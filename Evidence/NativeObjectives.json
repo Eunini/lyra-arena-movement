@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "blueprintClass": "BP_ArenaRunner_C",
+  "checkpoints": 4,
+  "groundDodges": 1,
+  "wallDodges": 1,
+  "airJumps": 1,
+  "courseSeconds": 9.93,
+  "mode": "Native UE5 game execution with NullRHI; no video frames",
+  "engineVersion": "5.4.4",
+  "platform": "Linux x86_64"
+}

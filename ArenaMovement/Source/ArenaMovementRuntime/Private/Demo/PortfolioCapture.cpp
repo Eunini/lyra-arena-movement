@@ -20,21 +20,23 @@
 
 void UArenaCaptureSubsystem::Tick(float Delta)
 {
- if (!GetWorld()->IsGameWorld() || !FParse::Param(FCommandLine::Get(),TEXT("PortfolioCapture")) || bFinished) return;
- if (!GEngine || !GEngine->GameViewport) return;
+ const bool Verify=FParse::Param(FCommandLine::Get(),TEXT("PortfolioVerify"));
+ if (!GetWorld()->IsGameWorld() || (!Verify && !FParse::Param(FCommandLine::Get(),TEXT("PortfolioCapture"))) || bFinished) return;
+ if (!Verify && (!GEngine || !GEngine->GameViewport)) return;
  if (!bConfigured)
  {
   Limit=1350;FParse::Value(FCommandLine::Get(),TEXT("PortfolioFrames="),Limit);Limit=FMath::Clamp(Limit,30,3600);
   Directory=FPaths::ProjectSavedDir()/TEXT("PortfolioFrames");
   IFileManager::Get().MakeDirectory(*Directory,true);
   FApp::SetUseFixedTimeStep(true);FApp::SetFixedDeltaTime(1.0/30.0);
-  Handle=UGameViewportClient::OnScreenshotCaptured().AddUObject(this,&UArenaCaptureSubsystem::Captured);
+  if (!Verify) Handle=UGameViewportClient::OnScreenshotCaptured().AddUObject(this,&UArenaCaptureSubsystem::Captured);
   bConfigured=true;
  }
 #if WITH_EDITOR
  if (GShaderCompilingManager && GShaderCompilingManager->IsCompiling()) {Warmup=0;return;}
 #endif
  if (++Warmup<=30 || bQueued) return;
+ if (Verify) {if (++Frame>=Limit) FinishCapture(0,0);return;}
  bQueued=true;FScreenshotRequest::RequestScreenshot(TEXT("PortfolioFrame"),true,false);
 }
 void UArenaCaptureSubsystem::Captured(int32 Width,int32 Height,const TArray<FColor>& Colors)
@@ -47,7 +49,9 @@ void UArenaCaptureSubsystem::Captured(int32 Width,int32 Height,const TArray<FCol
  if (PNG.IsEmpty() || !FFileHelper::SaveArrayToFile(PNG,*Name))
  {bFinished=true;FPlatformMisc::RequestExitWithStatus(false,1);return;}
  ++Frame;
- if (Frame>=Limit)
+ if (Frame>=Limit) FinishCapture(Width,Height);
+}
+void UArenaCaptureSubsystem::FinishCapture(int32 Width,int32 Height)
  {
   const auto* Player=Cast<AArenaDemoCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(),0));
   const bool Complete=Player && Player->GetClass()->GetName()==TEXT("BP_ArenaRunner_C") && Player->GetCheckpoint()==4 && Player->GetGroundDodges()>0 && Player->GetWallDodges()>0 && Player->GetAirJumps()>0;
@@ -60,10 +64,12 @@ void UArenaCaptureSubsystem::Captured(int32 Width,int32 Height,const TArray<FCol
   }
   const FString Evidence=FString::Printf(TEXT("{\"success\":true,\"blueprintClass\":\"BP_ArenaRunner_C\",\"checkpoints\":4,\"groundDodges\":%d,\"wallDodges\":%d,\"airJumps\":%d,\"courseSeconds\":%.2f}"),Player->GetGroundDodges(),Player->GetWallDodges(),Player->GetAirJumps(),Player->GetRunTime());
   FFileHelper::SaveStringToFile(Evidence,*(FPaths::ProjectSavedDir()/TEXT("GameplayEvidence.json")));
+  if (Width>0 && Height>0)
+  {
   const FString Receipt=FString::Printf(TEXT("{\"success\":true,\"frames\":%d,\"width\":%d,\"height\":%d,\"fps\":30,\"renderer\":\"Unreal Engine 5.4\"}"),Frame,Width,Height);
   FFileHelper::SaveStringToFile(Receipt,*(FPaths::ProjectSavedDir()/TEXT("PortfolioCapture.json")));
+  }
   bFinished=true;FPlatformMisc::RequestExit(false);
- }
 }
 void UArenaCaptureSubsystem::Deinitialize()
 {

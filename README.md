@@ -2,7 +2,7 @@
 
 An Unreal Engine 5.4 C++ movement extension built on Lyra's character, character movement component and Gameplay Ability System.
 
-The native Lyra editor and ArenaMovement modules compile in Unreal Engine 5.4.4. The repository includes the engine-generated Blueprint runner, pawn-data asset, material and course map. Native gameplay recording is underway.
+The native Lyra editor and ArenaMovement modules compile in Unreal Engine 5.4.4. The repository includes the engine-generated Blueprint runner, pawn-data asset, material and course map. A native UE5 run completed all four checkpoints with ground dodge, wall dodge and an air jump in 9.93 seconds. The objective receipt is in `Evidence/NativeObjectives.json`. Native gameplay recording is underway.
 
 ## Movement and playable course
 

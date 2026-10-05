@@ -23,7 +23,7 @@ Use a fresh Lyra 5.4 sample copy and an Unreal Engine 5.4 installation:
 python3 Tools/portfolio.py --engine /path/to/UE5.4 --lyra /path/to/Lyra --run
 ```
 
-The helper installs the two project plugins into that copy, adds input mappings and an arena-specific startup configuration, then compiles LyraEditor and generates native assets. It adds `LYRAGAME_API` to LyraAssetManager and LyraGameData in the sample headers so the demo module can extend them. Use a separate sample copy to keep this integration isolated.
+The helper installs the two project plugins into that copy, adds input mappings and an arena-specific startup configuration, then compiles LyraEditor and generates native assets. It disables the shooter game-feature plugins and their UI policy in that separate copy so the course can run without the shooter artwork. It adds `LYRAGAME_API` to LyraAssetManager and LyraGameData in the sample headers so the demo module can extend them. Use a separate sample copy to keep this integration isolated.
 
 Add `--package` for a Development build or `--capture` for native viewport footage. Capture requires FFmpeg and a working graphics renderer.
 

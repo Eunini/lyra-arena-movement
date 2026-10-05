@@ -20,6 +20,11 @@ if config.get("lyra"):
     projects=list(project_root.glob("*.uproject"))
     if len(projects)!=1: p.error("The Lyra directory must contain exactly one .uproject")
     project=projects[0]
+    descriptor=json.loads(project.read_text())
+    for plugin in descriptor.get("Plugins",[]):
+        if plugin.get("Name") in {"ShooterCore","ShooterMaps","ShooterExplorer","ShooterTests","TopDownArena"}:
+            plugin["Enabled"]=False
+    project.write_text(json.dumps(descriptor,indent=2)+"\n")
     for name in ("ArenaMovement","PortfolioForge"):
         source=root/name if name=="ArenaMovement" else root/"Plugins"/name
         dest=project_root/"Plugins"/name
@@ -58,12 +63,10 @@ EditorStartupMap=/Game/ArenaDemo/Maps/VectorCourse
 [/Script/Engine.RendererSettings]
 r.DynamicGlobalIlluminationMethod=0
 r.ReflectionMethod=0
+r.RayTracing=False
 r.DefaultFeature.MotionBlur=False
 r.DefaultFeature.AutoExposure=False
 
-[/Script/UnrealEd.ProjectPackagingSettings]
-+DirectoriesToAlwaysCook=(Path="/Game/ArenaDemo")
-+DirectoriesToAlwaysCook=(Path="/Game/Portfolio")
 """
     section+='''
 [/Script/LinuxTargetPlatform.LinuxTargetSettings]
@@ -76,6 +79,13 @@ r.VolumetricFog=0
 r.ScreenPercentage=75
 '''
     if "; ArenaMovement demo integration" not in previous: engine_config.write_text(previous+section)
+    package_config=project_root/"Config"/"DefaultGame.ini"
+    package_text=package_config.read_text() if package_config.exists() else ""
+    if '+DirectoriesToAlwaysCook=(Path="/Game/ArenaDemo")' not in package_text:
+        package_config.write_text(package_text+'\n[/Script/UnrealEd.ProjectPackagingSettings]\n+DirectoriesToAlwaysCook=(Path="/Game/ArenaDemo")\n+DirectoriesToAlwaysCook=(Path="/Game/Portfolio")\n')
+    if "; ArenaMovement demo UI" not in package_config.read_text():
+        with package_config.open("a") as file:
+            file.write('\n; ArenaMovement demo UI\n[/Script/LyraGame.LyraUIManagerSubsystem]\nDefaultUIPolicyClass=None\n\n[/Script/Engine.AssetManagerSettings]\n!PrimaryAssetTypesToScan=ClearArray\n+PrimaryAssetTypesToScan=(PrimaryAssetType="GameFeatureData",AssetBaseClass="/Script/GameFeatures.GameFeatureData",bHasBlueprintClasses=False,bIsEditorOnly=False,Directories=((Path="/Game/Unused")),Rules=(CookRule=AlwaysCook))\n+PrimaryAssetTypesToScan=(PrimaryAssetType="LyraPawnData",AssetBaseClass="/Script/LyraGame.LyraPawnData",bHasBlueprintClasses=False,bIsEditorOnly=False,Directories=((Path="/Game/ArenaDemo")),Rules=(CookRule=AlwaysCook))\n')
     input_config=project_root/"Config"/"DefaultInput.ini"
     old=input_config.read_text() if input_config.exists() else ""
     new=(root/"Tools"/"arena-input.ini").read_text()
@@ -92,17 +102,22 @@ build=batch/("Build.bat" if system=="Windows" else ("Mac/Build.sh" if system=="D
 editor=engine/"Engine"/"Binaries"/target_platform/("UnrealEditor-Cmd.exe" if system=="Windows" else "UnrealEditor-Cmd")
 if not editor.is_file(): editor=editor.with_name("UnrealEditor.exe" if system=="Windows" else "UnrealEditor")
 if not build.is_file() or not editor.is_file(): p.error("Engine build tools and editor executable were not found")
-subprocess.run([str(build),config["target"],target_platform,"Development","-Project="+str(project),"-WaitMutex","-NoHotReload","-NoDebugInfo","-MaxParallelActions=3"],check=True)
+subprocess.run([str(build),config["target"],target_platform,"Development","-Project="+str(project),"-WaitMutex","-NoHotReload","-NoDebugInfo","-MaxParallelActions=6"],check=True)
 subprocess.run([str(editor),str(project),"-run=PortfolioForge","-unattended","-NullRHI","-nosplash","-log"],check=True)
 receipt=project_root/"Saved"/"PortfolioAssets.json"
 if not receipt.is_file(): raise SystemExit("Editor asset receipt was not produced")
 data=json.loads(receipt.read_text())
 if not data.get("success"): raise SystemExit("Editor asset generation did not complete")
 print("Native assets generated:",len(data["assets"]))
+if config.get("lyra"):
+    for folder in ("ArenaDemo","Portfolio"):
+        source=project_root/"Content"/folder
+        if source.exists(): shutil.copytree(source,root/"Content"/folder,dirs_exist_ok=True)
+
 if a.package:
     uat=batch/("RunUAT.bat" if system=="Windows" else "RunUAT.sh")
     subprocess.run([str(uat),"BuildCookRun","-project="+str(project),"-noP4","-platform="+target_platform,
-                    "-clientconfig=Development","-build","-cook","-map="+config["map"],
+                    "-clientconfig=Development","-nodebuginfo","-ubtargs=-NoDebugInfo -MaxParallelActions=6","-build","-cook","-map="+config["map"],
                     "-stage","-pak","-archive","-archivedirectory="+str(root/"Artifacts"/target_platform)],check=True)
 if a.run or a.capture:
     exe=engine/"Engine"/"Binaries"/target_platform/("UnrealEditor.exe" if system=="Windows" else "UnrealEditor")

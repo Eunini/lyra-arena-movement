@@ -7,6 +7,7 @@ class UArenaCaptureSubsystem : public UTickableWorldSubsystem
 {
  GENERATED_BODY()
 public:
+ bool IsReady() const {return bConfigured && Warmup>30 && !bFinished;}
  virtual void Tick(float Delta) override;
  virtual TStatId GetStatId() const override {RETURN_QUICK_DECLARE_CYCLE_STAT(PortfolioCapture,STATGROUP_Tickables);}
  virtual bool IsTickable() const override {return !IsTemplate();}
@@ -18,4 +19,3 @@ private:
  bool bQueued=false,bConfigured=false,bFinished=false;
  void Captured(int32 Width,int32 Height,const TArray<FColor>& Colors);
 };
-

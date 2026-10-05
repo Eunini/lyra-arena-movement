@@ -11,6 +11,9 @@
 #include "HAL/FileManager.h"
 #include "HAL/PlatformMisc.h"
 #include "UnrealClient.h"
+#if WITH_EDITOR
+#include "ShaderCompiler.h"
+#endif
 #include "Demo/ArenaDemo.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -27,6 +30,9 @@ void UArenaCaptureSubsystem::Tick(float Delta)
   Handle=UGameViewportClient::OnScreenshotCaptured().AddUObject(this,&UArenaCaptureSubsystem::Captured);
   bConfigured=true;
  }
+#if WITH_EDITOR
+ if (GShaderCompilingManager && GShaderCompilingManager->IsCompiling()) {Warmup=0;return;}
+#endif
  if (++Warmup<=30 || bQueued) return;
  bQueued=true;FScreenshotRequest::RequestScreenshot(TEXT("PortfolioFrame"),true,false);
 }
@@ -44,7 +50,13 @@ void UArenaCaptureSubsystem::Captured(int32 Width,int32 Height,const TArray<FCol
  {
   const auto* Player=Cast<AArenaDemoCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(),0));
   const bool Complete=Player && Player->GetCheckpoint()==4 && Player->GetGroundDodges()>0 && Player->GetWallDodges()>0 && Player->GetAirJumps()>0;
-  if (!Complete){bFinished=true;FPlatformMisc::RequestExitWithStatus(false,2);return;}
+  if (!Complete)
+  {
+   UE_LOG(LogTemp,Error,TEXT("Vector objectives incomplete: checkpoints=%d groundDodges=%d wallDodges=%d airJumps=%d"),
+      Player?Player->GetCheckpoint():-1,Player?Player->GetGroundDodges():-1,
+      Player?Player->GetWallDodges():-1,Player?Player->GetAirJumps():-1);
+   bFinished=true;FPlatformMisc::RequestExitWithStatus(false,2);return;
+  }
   const FString Evidence=FString::Printf(TEXT("{\"success\":true,\"checkpoints\":4,\"groundDodges\":%d,\"wallDodges\":%d,\"airJumps\":%d,\"courseSeconds\":%.2f}"),Player->GetGroundDodges(),Player->GetWallDodges(),Player->GetAirJumps(),Player->GetRunTime());
   FFileHelper::SaveStringToFile(Evidence,*(FPaths::ProjectSavedDir()/TEXT("GameplayEvidence.json")));
   const FString Receipt=FString::Printf(TEXT("{\"success\":true,\"frames\":%d,\"width\":%d,\"height\":%d,\"fps\":30,\"renderer\":\"Unreal Engine 5.4\"}"),Frame,Width,Height);

@@ -16,6 +16,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Misc/CommandLine.h"
+#include "Demo/PortfolioCapture.h"
 #include "Misc/Parse.h"
 
 namespace
@@ -117,7 +118,11 @@ void AArenaDemoCharacter::Tick(float Delta)
 {
  Super::Tick(Delta);
  InitializeDemoAbilities();
- if (IsLocallyControlled() && FParse::Param(FCommandLine::Get(),TEXT("PortfolioDemo"))) AdvanceDemo(Delta);
+ if (IsLocallyControlled() && FParse::Param(FCommandLine::Get(),TEXT("PortfolioDemo")))
+ {
+  const auto* Capture=GetWorld()->GetSubsystem<UArenaCaptureSubsystem>();
+  if (!FParse::Param(FCommandLine::Get(),TEXT("PortfolioCapture")) || (Capture && Capture->IsReady())) AdvanceDemo(Delta);
+ }
  if (MarkerMaterial && GetWorld()->GetTimeSeconds()>PulseUntil) MarkerMaterial->SetVectorParameterValue(TEXT("Tint"),FLinearColor(.12f,.55f,.72f));
  if (!IsLocallyControlled() || FinishedAt>=0) return;
  if (StartedAt<0 && GetVelocity().Size2D()>10) StartedAt=GetWorld()->GetTimeSeconds();
@@ -144,18 +149,21 @@ void AArenaDemoCharacter::AdvanceDemo(float Delta)
  {
   case 0:if(Move(FVector(-100,0,0))){Dodge();Next();}break;
   case 1:if(Move(Checkpoints[0],140.f))Next();break;
-  case 2:if(Move(FVector(850,-310,0)))Next();break;
-  case 3:if(Move(FVector(1030,-350,0),20.f)){Jump();Next();}break;
-  case 4:
+  case 2:if(Move(FVector(300,-330,0)))Next();break;
+  case 3:if(Move(FVector(850,-330,0)))Next();break;
+  case 4:if(Move(FVector(1030,-365,0),15.f)){Jump();Next();}break;
+  case 5:
    Controller->SetControlRotation(FRotator(0,90,0));AddMovementInput(FVector(0,1,0));
-   if(StepAge>.1f){StopJumping();Dodge();Next();}break;
-  case 5:if(Move(Checkpoints[1],140.f))Next();break;
-  case 6:if(Move(FVector(1500,200,0))){Jump();Next();}break;
-  case 7:AddMovementInput(FVector(1,0,0));if(StepAge>.25f){StopJumping();Jump();Next();}break;
-  case 8:if(Move(Checkpoints[2],150.f)){StopJumping();Next();}break;
-  case 9:if(Move(FVector(2200,-80,0)))Next();break;
+   if(StepAge>.05f){StopJumping();Dodge();Next();}break;
+  case 6:if(Move(Checkpoints[1],140.f))Next();break;
+  case 7:if(Move(FVector(1500,200,0))){Jump();Next();}break;
+  case 8:AddMovementInput(FVector(1,0,0));if(StepAge>.25f){StopJumping();Jump();Next();}break;
+  case 9:if(Move(Checkpoints[2],150.f)){StopJumping();Next();}break;
+  case 10:if(Move(FVector(1750,650,0)))Next();break;
+  case 11:if(Move(FVector(2600,650,0)))Next();break;
   default:Move(Checkpoints[3],150.f);break;
  }
+
 }
 AArenaDemoWorld::AArenaDemoWorld(){SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Root")));}
 void AArenaDemoWorld::OnConstruction(const FTransform& Transform)
